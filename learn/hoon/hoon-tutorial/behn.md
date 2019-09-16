@@ -12,6 +12,24 @@ An app or vane can make a request to Behn to be informed when a specified amount
 
 We review here some of the commonly used types in the Behn vane as found in `behn.hoon`.
 
+### `timer`
+```
++$  timer  [date=@da =duct]
+```
+A `timer` consists of a `@da` (an absolute date at which the timer will go off) and a `duct` (representing the causal stack that began the timer). As part of its state, `Behn` keeps track of a list of `timer`s:
+### `behn-state`
+```
++$  behn-state
+  $:  timers=(list timer)
+      unix-duct=duct
+      next-wake=(unit @da)
+      drips=drip-manager
+  ==
+```
+We see that a `behn-state` is a list of all `timers` that `Behn` is currently keeping track of. `unix-duct` is Behn's link to the unix timer. `next-wake` is the next time that `Behn` is supposed to inform a requestee that the specified timer has elapsed. We will ignore `drips` for the purpose of this tutorial.
+
+### `move`
+
 Arvo vanes communicate via `moves`:
 ```
 +$  move  [p=duct q=(wind note gift:able)]
@@ -28,21 +46,6 @@ A `duct` is a call stack, which is a list of `path`s that represent a step in a 
 ```
 Here we see that `wind` produces a wet gate that takes in two molds, which for the `move` type for Behn are `note`s and `gift`s. When a vane needs to request something of another vane, it `%pass`es a `note`.  When a vane produces a result that was requested, it `%gives` a `gift` to the callee.
 
-Next let us look at the `timer` type in `behn.hoon`:
-```
-+$  timer  [date=@da =duct]
-```
-A `timer` consists of a `@da` (an absolute date at which the timer will go off) and a `duct` (representing the causal stack that began the timer). As part of its state, `Behn` keeps track of a list of `timer`s:
-```
-+$  behn-state
-  $:  timers=(list timer)
-      unix-duct=duct
-      next-wake=(unit @da)
-      drips=drip-manager
-  ==
-```
-We see that a `behn-state` is a list of all `timers` that `Behn` is currently keeping track of. `unix-duct` is Behn's link to the unix timer. `next-wake` is the next time that `Behn` is supposed to inform a requestee that the specified timer has elapsed. We will ignore `drips` for the purpose of this tutorial.
-
 
 ## Internal arms
 
@@ -50,14 +53,6 @@ The following arms are part of the `event-core` of Behn, which are essentially t
 
 ### ++set-unix-wake
 This arm is what Behn uses to tell the unix timer when to `%wake` Behn.
-
-
-### ++born
-
-```
-++  born  set-unix-wake(next-wake.state ~, unix-duct.state duct)
-```
-This arm is called when Behn is first launched. It gives Behn a `duct` to the unix timer and initializes the `behn-state` with the face `state` with a null list of `timer`s.
 
 ### ++set-timer
 This arm is a dry gate that takes in a `timer` and adds it to the list of `timer`s in the `state`. ``++set-timer`` automatically places the new `timer` in chronological order, so that the timer at the front of the list of `timer`s is the `timer` that will expire the soonest.
@@ -76,6 +71,13 @@ This undoes a `++wait` operation. That is, `++rest` removes a timer from the lis
 
 ### ++wake
 This arm is ultimately called by the unix timer to let Behn know that a previously specified amount of time has elapsed.
+
+### ++born
+
+```
+++  born  set-unix-wake(next-wake.state ~, unix-duct.state duct)
+```
+This arm is called when Behn is first launched. It gives Behn a `duct` to the unix timer and initializes the `behn-state` with the face `state` with a null list of `timer`s.
 
 ## External interface
 
