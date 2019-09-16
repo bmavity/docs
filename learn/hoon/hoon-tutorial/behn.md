@@ -82,7 +82,7 @@ This arm is ultimately called by the unix timer to let Behn know that a previous
 Arvo talks to Behn via four arms, `++call`, `++load`, `++scry`, `++stay`, and ``++take``, which ultimately call arms in the `event-core` of which we have listed a subset above. Here we will only look at `++call` and `++take`.
 
 ### ++call
-When Behn is `%pass`ed a `note` from another vane, that is enacted upon by Arvo via the `++call` gate. The `note` specifies what action to take, which are references to the internal arms. This is done by including in the `note` a mark such as `%born`, `%rest`, `%wait`, or `%wake`, which ultimately call the arms with those names in the `event-core`.
+When Behn is `%pass`ed a `note` from another vane, that is enacted upon by Arvo via the `++call` gate. The `note` specifies what action to take, which are references to the internal arms. This is done by including in the `note` a symbol such as `%born`, `%rest`, `%wait`, or `%wake`, which ultimately call the arms with those names in the `event-core`.
 
 ### ++take
-When Behn is ready to inform another vane or application that a timer has elapsed, Arvo activates the `++take` gate. That is, Arvo `take`s a `gift` from Behn that includes the mark `%wake`, and `%pass`es it to the the requestee. `%wake` is the only kind of `gift` that Behn can make, but other vanes may possess multiple responses.
+When Behn is ready to inform another vane or application that a timer has elapsed, Arvo activates the `++take` gate. That is, Arvo `take`s a `gift` from Behn that includes the symbol `%wake`, and `%pass`es it to the the requestee. `%wake` is the only kind of `gift` that Behn can make, but other vanes may possess multiple responses.
